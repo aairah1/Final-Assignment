@@ -4,6 +4,7 @@
  */
 package the.magic.bed;
 
+import processing.core.PApplet;
 /**
  *
  * @author 343079463
@@ -15,6 +16,7 @@ public class TheMagicBed {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        MySketch.main("the.magic.bed.MySketch");
     }
     
 }
