@@ -39,6 +39,10 @@ public class Character {
         app.image(image, x, y);
     }
     
+    public void changePerspective (String imagePath){
+        this.image = app.loadImage(imagePath);
+    }
+    
       public boolean isClicked(int mouseX, int mouseY) {
         /*calculates distance from mouse click at mouseX and mouseY to center 
         * of image since (x,y) of image is postioned at the top left corner  
