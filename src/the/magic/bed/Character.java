@@ -16,6 +16,7 @@ public class Character {
     String name;
     private PApplet app;
     private PImage image;
+    private int width, height;
     
     public Character (PApplet p, int x, int y, String name, String imagePath){
         this.app = p;
@@ -23,6 +24,8 @@ public class Character {
         this.y = y;
         this.name = name;
         this.image = app.loadImage(imagePath);
+        this.width = image.width;
+        this.height = image.height;
     }
     
     public void move(int dx, int dy){
@@ -43,7 +46,7 @@ public class Character {
         this.image = app.loadImage(imagePath);
     }
     
-      public boolean isClicked(int mouseX, int mouseY) {
+    public boolean isClicked(int mouseX, int mouseY) {
         /*calculates distance from mouse click at mouseX and mouseY to center 
         * of image since (x,y) of image is postioned at the top left corner  
         * we use x+(image.pixelWidth/2), y+(image.pixelHeight/2)) to get center*/
@@ -60,8 +63,20 @@ public class Character {
         return d < 16; 
     }
 
-      public void displayInfo(PApplet p){
-          app.fill(0,0,0);
-          app.text("Name: " + name, x, y+45);
-      }
+    public void displayInfo(PApplet p){
+        app.fill(0,0,0);
+        app.text("Name: " + name, x, y+45);
+    }
+    
+    public boolean isCollidingWith(Character other) {
+        // Check if the bounding boxes of the two persons intersect
+        boolean isLeftOfOtherRight = x < other.x + other.width;
+        boolean isRightOfOtherLeft = x + width > other.x;
+        boolean isAboveOtherBottom = y < other.y + other.height;
+        boolean isBelowOtherTop = y + height > other.y;
+
+        return isLeftOfOtherRight && isRightOfOtherLeft 
+          && isAboveOtherBottom && isBelowOtherTop;
+    }
+
 }

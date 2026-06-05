@@ -15,7 +15,7 @@ public class MySketch extends PApplet {
     private Person person1;
     String userInput = "";
     int stage = 0;
-    PImage bg1Image, bg2Image; // backgroudn images
+    PImage bg1Image, bg2Image, bg3Image; // background images
     
     // the main characters facial perspectives
     String pfp1 = "images/1.png";
@@ -23,6 +23,8 @@ public class MySketch extends PApplet {
     String pfp3 = "images/3.png";
     String pfp4 = "images/4.png";
     
+    // object's
+    private Person mango1;
     
     public void settings(){
 	   //sets the size of the window
@@ -34,43 +36,61 @@ public class MySketch extends PApplet {
            // sets the text information, resizes the background images and loads them in
         background(255, 255, 255);
         textSize(20);
+        
+        //backgrounds
         bg1Image = loadImage("images/intobg.png");
         bg1Image.resize(1000, 700);
         bg2Image = loadImage("images/bgimage1.png");
         bg2Image.resize(1000, 700);
+        bg3Image = loadImage("images/bgimage2.png");
+        bg3Image.resize(1000, 700);
         
+        // characters
         person1 = new Person (this, 450, 500, "Prince", pfp1);
+        
+        //objects
+        mango1 = new Person (this, 650, 330, "Mango", "images/mango.png");
     }
     
-    public void draw(){
-        background (255, 255, 255);
-        if (stage == 0){
-            background(bg1Image); // set bg image
+    
+    public void draw() {
+        background(255, 255, 255); 
+
+        if (stage == 0) {
+            background(bg1Image); 
             textSize(20);
             text("Welcome!", 450, 350);
             textSize(15);
             text("Enter name: ", 450, 365);
             text(userInput, 450, 380);
-        } else if (stage == 1){
-            background(bg2Image); // set new bg image
+        } else if (stage == 1) {
+            background(bg2Image); 
+            mango1.draw();
             person1.draw();
+        } else if (stage == 2){
+            background(bg3Image);
         }
         
-        
-        if (keyPressed){
-            if (keyCode == LEFT){
+        if (keyPressed) {
+            if (keyCode == LEFT) {
                 person1.changePerspective(pfp2);
-                person1.move(-5,0);
+                person1.move(-5, 0);
             } else if (keyCode == RIGHT) {
                 person1.changePerspective(pfp3);
-                person1.move(5,0);
-            } else if (keyCode == UP){
+                person1.move(5, 0);
+            } else if (keyCode == UP) {
                 person1.changePerspective(pfp4);
-                person1.move(0,-5);
-            } else if (keyCode == DOWN){
+                person1.move(0, -5);
+            } else if (keyCode == DOWN) {
                 person1.changePerspective(pfp1);
-                person1.move (0,5);
+                person1.move(0, 5);
             }
+        }
+
+
+        if (person1.isCollidingWith(mango1)){
+            fill(255,255,255);
+            this.text("AAAHH PLEASE DONT EAT ME", mango1.x, mango1.y - 45);
         }
     }
     
