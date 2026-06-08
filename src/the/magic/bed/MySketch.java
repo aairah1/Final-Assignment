@@ -16,6 +16,7 @@ public class MySketch extends PApplet {
     String userInput = "";
     int stage = 0;
     PImage bg1Image, bg2Image, bg3Image; // background images
+    PImage dialog1; // dialogues
     
     // the main characters facial perspectives
     String pfp1 = "images/1.png";
@@ -25,6 +26,7 @@ public class MySketch extends PApplet {
     
     // object's
     private Person mango1;
+    private Character antKing;
     
     public void settings(){
 	   //sets the size of the window
@@ -47,9 +49,13 @@ public class MySketch extends PApplet {
         
         // characters
         person1 = new Person (this, 450, 500, "Prince", pfp1);
+        antKing = new Character (this, 600, 300, "Ant King", "images/antking.png");
         
         //objects
         mango1 = new Person (this, 650, 330, "Mango", "images/mango.png");
+        
+        //dialogues
+        dialog1 = loadImage("images/dialog1.png");
     }
     
     
@@ -69,6 +75,14 @@ public class MySketch extends PApplet {
             person1.draw();
         } else if (stage == 2){
             background(bg3Image);
+            fill(255, 255, 255);
+            this.text("AAAHH PLEASE DONT EAT ME", antKing.x, antKing.y - 45);
+            antKing.draw();
+        } else if (stage == 3){
+            background(bg2Image); 
+            mango1.draw();
+            person1.draw();
+            antKing.draw();
         }
         
         if (keyPressed) {
@@ -88,9 +102,12 @@ public class MySketch extends PApplet {
         }
 
 
-        if (person1.isCollidingWith(mango1)){
-            fill(255,255,255);
-            this.text("AAAHH PLEASE DONT EAT ME", mango1.x, mango1.y - 45);
+        if (stage == 1 && person1.isCollidingWith(mango1)) {
+            stage = 2;
+        }
+        
+        if (person1.isCollidingWith(antKing) && stage == 3){
+            image(dialog1, 200, 500);
         }
     }
     
@@ -101,6 +118,19 @@ public class MySketch extends PApplet {
             } else if (key != CODED){
             userInput += key;
             }
+        }
+    }
+    
+    public void mousePressed(){
+        if (stage == 2 && mouseX >= antKing.x && mouseX <= antKing.x + 100 && 
+            mouseY >= antKing.y && mouseY <= antKing.y + 100) {
+            stage = 3;
+            
+            person1.x = 750; 
+            person1.y = 330;
+            
+            antKing.x = 570;
+            antKing.y = 330;
         }
     }
 }

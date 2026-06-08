@@ -43,4 +43,5 @@ public class Person extends Character {
         p.rectMode(PApplet.CENTER);
         p.rect(this.x, this.y - 50, 150, 40, 5);
     }
+    
 }
