@@ -100,11 +100,11 @@ public class MySketch extends PApplet {
             mango1.draw();
             antKing.draw();
             person1.draw();
-        } else if (stage == 3.5){
-            background(bg2Image); 
-            mango1.draw();
-            antKing.draw();
-            person1.draw();
+        } else if (stage == 3.1){ // if we are on stage 3.1
+            background(bg2Image); // set the background
+            mango1.draw(); // draw the mango
+            antKing.draw(); // draw the ant king 
+            person1.draw(); // draw the prince
         }
         
         if (keyPressed) {
