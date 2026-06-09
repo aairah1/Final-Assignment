@@ -8,15 +8,18 @@ package the.magic.bed;
  *
  * @author 343079463
  */
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import processing.core.PApplet;
 import processing.core.PImage;
 
 public class MySketch extends PApplet {
     private Person person1;
     String userInput = "";
-    int stage = 0;
+    double stage = 0;
     PImage bg1Image, bg2Image, bg3Image; // background images
-    PImage dialog1; // dialogues
+    PImage dialog1, dialog2; // dialogues
     
     // the main characters facial perspectives
     String pfp1 = "images/1.png";
@@ -56,6 +59,7 @@ public class MySketch extends PApplet {
         
         //dialogues
         dialog1 = loadImage("images/dialog1.png");
+        dialog2 = loadImage("images/dialog2.png");
     }
     
     
@@ -69,6 +73,19 @@ public class MySketch extends PApplet {
             textSize(15);
             text("Enter name: ", 450, 365);
             text(userInput, 450, 380);
+            /** NOT WORKING, FIX!!
+            try { // try the code below
+                // Open the file and add to the end instead of deleting previous text
+                FileWriter w = new FileWriter("usernames", true); // create the file writer for the verdict.txt file
+                PrintWriter fileOutput = new PrintWriter(w); // create the printwriter for the filewriter
+                // Write the user's review
+                fileOutput.print(userInput); //add the username to the file
+                fileOutput.close(); // // Close the file when finished saving
+
+            } catch (IOException e) { // catch the io exception if there is one
+                System.out.println("Invalid Username"); // Error message
+            } // close the try-catch
+            */
         } else if (stage == 1) {
             background(bg2Image); 
             mango1.draw();
@@ -81,8 +98,13 @@ public class MySketch extends PApplet {
         } else if (stage == 3){
             background(bg2Image); 
             mango1.draw();
-            person1.draw();
             antKing.draw();
+            person1.draw();
+        } else if (stage == 3.5){
+            background(bg2Image); 
+            mango1.draw();
+            antKing.draw();
+            person1.draw();
         }
         
         if (keyPressed) {
@@ -109,6 +131,10 @@ public class MySketch extends PApplet {
         if (person1.isCollidingWith(antKing) && stage == 3){
             image(dialog1, 200, 500);
         }
+        
+        if (stage == 3.1 && person1.isCollidingWith(antKing)){
+            image(dialog2, 200, 500);
+        }
     }
     
     public void keyPressed(){
@@ -121,7 +147,7 @@ public class MySketch extends PApplet {
         }
     }
     
-    public void mousePressed(){
+    public void mousePressed(){ 
         if (stage == 2 && mouseX >= antKing.x && mouseX <= antKing.x + 100 && 
             mouseY >= antKing.y && mouseY <= antKing.y + 100) {
             stage = 3;
@@ -131,6 +157,14 @@ public class MySketch extends PApplet {
             
             antKing.x = 570;
             antKing.y = 330;
+        }
+        
+        if (stage == 3 && mouseX >= 200 && mouseX <= 200 + dialog1.width && mouseY >= 500 && mouseY <= 500 + dialog1.height){
+            stage = 3.1;
+        }
+        
+         if (stage == 3.1 && mouseX >= 200 && mouseX <= 200 + dialog1.width && mouseY >= 500 && mouseY <= 500 + dialog1.height){
+            stage = 3.2;
         }
     }
 }
