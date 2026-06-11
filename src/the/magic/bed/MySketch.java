@@ -18,8 +18,8 @@ public class MySketch extends PApplet {
     private Person person1;
     String userInput = "";
     double stage = 0;
-    PImage bg1Image, bg2Image, bg3Image, bg4Image; // background images
-    PImage dialog1, dialog2, dialog3, dialog4; // dialogues
+    PImage bg1Image, bg2Image, bg3Image, bg4Image, bg5Image; // background images
+    PImage dialog1, dialog2, dialog3, dialog4, dialog5; // dialogues
     
     // the main characters facial perspectives
     String pfp1 = "images/1.png";
@@ -27,9 +27,12 @@ public class MySketch extends PApplet {
     String pfp3 = "images/3.png";
     String pfp4 = "images/4.png";
     
+    // the tigers facial 
+    String tfp = "images/1t.png";
+    
     // object's
     private Person mango1;
-    private Character antKing;
+    private Character antKing, tiger;
     
     public void settings(){
 	   //sets the size of the window
@@ -51,10 +54,13 @@ public class MySketch extends PApplet {
         bg3Image.resize(1000, 700);
         bg4Image = loadImage("images/bgImage3.png");
         bg4Image.resize(1000, 700);
+        bg5Image = loadImage("images/bgimage4.png");
+        bg5Image.resize(1000, 700);
         
         // characters
         person1 = new Person (this, 450, 500, "Prince", pfp1);
         antKing = new Character (this, 600, 300, "Ant King", "images/antking.png");
+        tiger = new Character (this, 580, 400, "Tiger", "images/tiger1.png");
         
         //objects
         mango1 = new Person (this, 650, 330, "Mango", "images/mango.png");
@@ -64,6 +70,7 @@ public class MySketch extends PApplet {
         dialog2 = loadImage("images/dialog2.png");
         dialog3 = loadImage("images/dialog3.png");
         dialog4 = loadImage("images/dialog4.png");
+        dialog5 = loadImage("images/dialog5.png");
     }
     
     
@@ -77,18 +84,6 @@ public class MySketch extends PApplet {
             textSize(15); // set the text size as 15
             text("Enter name: ", 450, 365); // create a space for the user to enter their name
             text(userInput, 450, 380); // gett eh user input
-            String username = userInput;
-            try { // try the code below
-                // Open the file and add to the end instead of deleting previous text
-                FileWriter w = new FileWriter("usernames", true); // create the file writer for the verdict.txt file
-                PrintWriter fileOutput = new PrintWriter(w); // create the printwriter for the filewriter
-                // Write the user's review
-                fileOutput.print(userInput); //add the username to the file
-                fileOutput.close(); // // Close the file when finished saving
-
-            } catch (IOException e) { // catch the io exception if there is one
-                System.out.println("Invalid Username"); // Error message
-            } // close the try-catch
         } else if (stage == 1) { // if we are on stage 1
             background(bg2Image);  // set the background
             mango1.draw(); // draw the mango
@@ -103,14 +98,21 @@ public class MySketch extends PApplet {
             mango1.draw(); // draw the mango
             antKing.draw(); // draw the ant king
             person1.draw(); // draw the prince
-        } else if (stage == 3.1 || stage == 3.2 || stage == 3.4){ // if we are on stage 3.1, 3.2,or 3.4
+        } else if (stage == 3.1 || stage == 3.2 || stage == 3.4 || stage == 3.5){ // if we are on stage 3.1, 3.2,3.4, or 3.5
             background(bg2Image); // set the background
             mango1.draw(); // draw the mango
             antKing.draw(); // draw the ant king
             person1.draw(); // draw the prince
         } else if (stage == 3.3){
             background(bg4Image);
-        } 
+        } else if (stage == 4){
+            background(bg5Image);
+            person1.draw();
+        } else if (stage == 5){
+            background(bg5Image);
+            tiger.draw();
+            person1.draw();
+        }
         
         if (keyPressed) {
             if (keyCode == LEFT) {
@@ -149,14 +151,72 @@ public class MySketch extends PApplet {
         if (stage == 3.4 && person1.isCollidingWith(antKing)){
             image(dialog4, 200, 500);
         }
+        
+        if (stage == 3.5 && person1.isCollidingWith(antKing)){
+            image(dialog5, 200, 500);
+        }
+        
+        // location check
+        if (person1.y >= height - 50) { // 'height' is 700. 'height - 50' gives a small buffer zone
+            stage = 4;
+            person1.y = 500;
+            person1.x = 100;
+        }
+        
+        if (stage == 4){
+            person1.changePerspective(pfp3);
+            person1.move(3, 0);
+            if (person1.x >= width - 5){
+                stage = 5;
+                person1.x = 0;
+                person1.y = 450;
+                person1.move(3, 0);
+                if (person1.x >= 100){
+                    person1.y = 450;
+                    person1.x = 100; 
+                }
+            }
+        }
+        
+        if (stage == 5 && person1.isCollidingWith(tiger)){
+            tiger.changePerspective(tfp);
+        } else {
+            tiger.changePerspective("images/tiger1.png");
+        }
     }
     
-    public void keyPressed(){
-        if (stage == 0){
-            if (keyCode == ENTER) {
+    public void keyPressed() {
+        if (stage == 0) {
+            if (key == ENTER || key == RETURN) {
+                // 1. Grab the username immediately before clearing or changing stages
+                String username = userInput.trim(); 
+
+                // Only save if the user actually typed something
+                if (username.length() > 0) {
+                    try {
+                        // 2. Write to the file (appends cleanly with a .txt extension)
+                        FileWriter w = new FileWriter("usernames.txt", true);
+                        PrintWriter fileOutput = new PrintWriter(w);
+                        fileOutput.println(username);
+                        fileOutput.close();
+                        System.out.println("Saved username: " + username);
+
+                    } catch (IOException e) {
+                        System.out.println("Error saving file: " + e.getMessage());
+                    }
+                }
+
+                // 3. Move to the next stage safely AFTER saving is completed
                 stage = 1;
-            } else if (key != CODED){
-            userInput += key;
+
+            } else if (key == BACKSPACE) {
+                // Fixes the backspace glitch so users can fix typos
+                if (userInput.length() > 0) {
+                    userInput = userInput.substring(0, userInput.length() - 1);
+                }
+            } else if (key != CODED) {
+                // Adds the typed letter, ignoring system keys like Shift/Ctrl/Enter
+                userInput += key;
             }
         }
     }
@@ -184,6 +244,9 @@ public class MySketch extends PApplet {
         }        
         else if (stage == 3.3 && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height){ // Fixed background click area here
             stage = 3.4;
+        }
+        else if (stage == 3.4 && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height){ // Fixed background click area here
+            stage = 3.5;
         }
     }
 }
