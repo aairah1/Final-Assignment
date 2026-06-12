@@ -27,7 +27,7 @@ public class MySketch extends PApplet {
     String pfp3 = "images/3.png";
     String pfp4 = "images/4.png";
     
-    // the tigers facial 
+    // the tigers facial perspectives
     String tfp = "images/1t.png";
     
     // object's
@@ -179,6 +179,10 @@ public class MySketch extends PApplet {
             background(bg5Image);
             tiger.draw();
             person1.draw();
+            
+            if (person1.isCollidingWith(tiger)){
+                
+            }
         }
         
         if (keyPressed) {
@@ -313,7 +317,6 @@ public class MySketch extends PApplet {
     public void keyPressed() {
         if (showUsernameScreen) {
             if (key == BACKSPACE) {
-                // Fixes the backspace glitch so users can fix typos
                 if (userInput.length() > 0) {
                     userInput = userInput.substring(0, userInput.length() - 1);
                 }
