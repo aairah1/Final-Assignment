@@ -34,6 +34,19 @@ public class MySketch extends PApplet {
     private Person mango1;
     private Character antKing, tiger;
     
+    // Intro screen variables
+    private float loadingProgress = 0;
+    private boolean isLoading = true;
+    private boolean showUsernameScreen = false;
+    private boolean isFadingOut = false;
+    private boolean isFadingIn = false;
+    private float fadeAlpha = 0;
+    private Button startButton;
+    
+    // Stage 1 variables
+    private boolean showPickupPrompt = false;
+    private boolean isFadingToStage2 = false;
+    
     public void settings(){
 	   //sets the size of the window
         size (1000,700);
@@ -71,23 +84,77 @@ public class MySketch extends PApplet {
         dialog3 = loadImage("images/dialog3.png");
         dialog4 = loadImage("images/dialog4.png");
         dialog5 = loadImage("images/dialog5.png");
+        
+        // Initialize start button (small, purple)
+        startButton = new Button(this, 460, 350, 80, 35, "Start");
+        
+        isLoading = true;
+        showUsernameScreen = false;
     }
     
     
     public void draw() {
-        background(255, 255, 255); 
-
-        if (stage == 0) { // if we are on stage 0 (intro)
-            background(bg1Image); // set the background
-            textSize(20); // make the text size 20
-            text("Welcome!", 450, 350); // create a welcome message
-            textSize(15); // set the text size as 15
-            text("Enter name: ", 450, 365); // create a space for the user to enter their name
-            text(userInput, 450, 380); // gett eh user input
-        } else if (stage == 1) { // if we are on stage 1
+        // Loading screen
+        if (isLoading) {
+            background(bg1Image);
+            drawLoadingScreen();
+            loadingProgress += 0.01; // Simulate loading
+            if (loadingProgress >= 1.0) {
+                isLoading = false;
+                showUsernameScreen = true;
+            }
+            return;
+        }
+        
+        // Username screen
+        if (showUsernameScreen) {
+            background(bg1Image);
+            drawUsernameScreen();
+            return;
+        }
+        
+        // Fade out transition
+        if (isFadingOut) {
+            fadeAlpha += 5; // Slow fade
+            if (fadeAlpha >= 255) {
+                fadeAlpha = 255;
+                isFadingOut = false;
+                isFadingIn = true;
+                stage = 1;
+            }
+        }
+        
+        // Fade in transition
+        if (isFadingIn) {
+            fadeAlpha -= 5; // Fade in
+            if (fadeAlpha <= 0) {
+                fadeAlpha = 0;
+                isFadingIn = false;
+            }
+        }
+        
+        // Main game stages
+        if (stage == 1) { // if we are on stage 1
             background(bg2Image);  // set the background
             mango1.draw(); // draw the mango
-            person1.draw(); // draw the price
+            person1.draw(); // draw the prince
+            
+            // Check if player collided with mango
+            if (person1.isCollidingWith(mango1) && !showPickupPrompt) {
+                showPickupPrompt = true;
+            }
+            
+            // Show pickup prompt if collision detected
+            if (showPickupPrompt) {
+                fill(0, 0, 0, 150);
+                rect(0, 0, width, height);
+                fill(255);
+                textAlign(CENTER);
+                textSize(24);
+                text("Pick up the mango", 500, 100);
+                textAlign(LEFT);
+            }
+            
         } else if (stage == 2){ // if we are on stage 2
             background(bg3Image); // set the background
             fill(255, 255, 255); // set the text color to white
@@ -132,10 +199,6 @@ public class MySketch extends PApplet {
 
         //Collision detection and Stage changes
         // dialogue changes as well
-        if (stage == 1 && person1.isCollidingWith(mango1)) {
-            stage = 2;
-        }
-        
         if (person1.isCollidingWith(antKing) && stage == 3){
             image(dialog1, 200, 500);
         }
@@ -183,33 +246,73 @@ public class MySketch extends PApplet {
         } else {
             tiger.changePerspective("images/tiger1.png");
         }
+        
+        // Draw fade overlay if fading out or fading in
+        if (isFadingOut || isFadingIn) {
+            fill(0, fadeAlpha);
+            rect(0, 0, width, height);
+        }
+        
+        // Fade to stage 2
+        if (isFadingToStage2) {
+            fadeAlpha += 5;
+            if (fadeAlpha >= 255) {
+                fadeAlpha = 255;
+                isFadingToStage2 = false;
+                isFadingIn = true;
+                stage = 2;
+                showPickupPrompt = false;
+            }
+        }
+    }
+    
+    private void drawLoadingScreen() {
+        // Small centered progress bar
+        fill(150, 100, 200); // Purple
+        rect(375, 320, 250, 15, 5);
+        
+        // Progress bar fill
+        fill(200, 150, 255);
+        rect(375, 320, 250 * loadingProgress, 15, 5);
+        
+        // Small loading text
+        fill(255);
+        textAlign(CENTER);
+        textSize(14);
+        text("Loading...", 500, 305);
+        textAlign(LEFT);
+    }
+    
+    private void drawUsernameScreen() {
+        fill(255);
+        textAlign(CENTER);
+        textSize(28);
+        text("Welcome, Traveler", 500, 250);
+        
+        textSize(16);
+        text("Enter your name:", 500, 290);
+        
+        // Small username input box
+        stroke(150, 100, 200); // Purple border
+        strokeWeight(2);
+        fill(50, 50, 50);
+        rect(350, 305, 300, 35, 3);
+        
+        fill(255);
+        textSize(16);
+        textAlign(LEFT);
+        text(userInput, 365, 328);
+        textAlign(CENTER);
+        
+        // Draw start button (small, purple)
+        startButton.display();
+        
+        textAlign(LEFT);
     }
     
     public void keyPressed() {
-        if (stage == 0) {
-            if (key == ENTER || key == RETURN) {
-                // 1. Grab the username immediately before clearing or changing stages
-                String username = userInput.trim(); 
-
-                // Only save if the user actually typed something
-                if (username.length() > 0) {
-                    try {
-                        // 2. Write to the file (appends cleanly with a .txt extension)
-                        FileWriter w = new FileWriter("usernames.txt", true);
-                        PrintWriter fileOutput = new PrintWriter(w);
-                        fileOutput.println(username);
-                        fileOutput.close();
-                        System.out.println("Saved username: " + username);
-
-                    } catch (IOException e) {
-                        System.out.println("Error saving file: " + e.getMessage());
-                    }
-                }
-
-                // 3. Move to the next stage safely AFTER saving is completed
-                stage = 1;
-
-            } else if (key == BACKSPACE) {
+        if (showUsernameScreen) {
+            if (key == BACKSPACE) {
                 // Fixes the backspace glitch so users can fix typos
                 if (userInput.length() > 0) {
                     userInput = userInput.substring(0, userInput.length() - 1);
@@ -222,6 +325,27 @@ public class MySketch extends PApplet {
     }
     
     public void mousePressed(){ 
+        // Check if start button was clicked on username screen
+        if (showUsernameScreen && startButton.isClicked(mouseX, mouseY)) {
+            String username = userInput.trim();
+            if (username.length() > 0) {
+                saveUsername(username);
+            }
+            showUsernameScreen = false;
+            isFadingOut = true;
+            fadeAlpha = 0;
+            return;
+        }
+        
+        // Check if mango was clicked (stage 1)
+        if (stage == 1 && showPickupPrompt && mouseX >= mango1.x && mouseX <= mango1.x + 100 && 
+            mouseY >= mango1.y && mouseY <= mango1.y + 100) {
+            isFadingToStage2 = true;
+            fadeAlpha = 0;
+            return;
+        }
+        
+        // Main game mouse interactions
         if (stage == 2 && mouseX >= antKing.x && mouseX <= antKing.x + 100 && 
             mouseY >= antKing.y && mouseY <= antKing.y + 100) {
             stage = 3;
@@ -239,14 +363,63 @@ public class MySketch extends PApplet {
         else if (stage == 3.1 && mouseX >= 200 && mouseX <= 200 + dialog2.width && mouseY >= 500 && mouseY <= 500 + dialog2.height){
             stage = 3.2;
         }        
-        else if (stage == 3.2 && mouseX >= 200 && mouseX <= 200 + dialog3.width && mouseY >= 500 && mouseY <= 500 + dialog3.height){ // Fixed typo here (dialog3)
+        else if (stage == 3.2 && mouseX >= 200 && mouseX <= 200 + dialog3.width && mouseY >= 500 && mouseY <= 500 + dialog3.height){
             stage = 3.3;
         }        
-        else if (stage == 3.3 && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height){ // Fixed background click area here
+        else if (stage == 3.3 && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height){
             stage = 3.4;
         }
-        else if (stage == 3.4 && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height){ // Fixed background click area here
+        else if (stage == 3.4 && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height){
             stage = 3.5;
+        }
+    }
+    
+    private void saveUsername(String username) {
+        try {
+            // Save to "usernames" file in the project root directory
+            FileWriter w = new FileWriter("usernames", true);
+            PrintWriter fileOutput = new PrintWriter(w);
+            fileOutput.println(username);
+            fileOutput.close();
+            System.out.println("Saved username: " + username);
+
+        } catch (IOException e) {
+            System.out.println("Error saving file: " + e.getMessage());
+        }
+    }
+    
+    // ===== Button Helper Class =====
+    private class Button {
+        private float x, y, w, h;
+        private String label;
+        private PApplet parent;
+        
+        Button(PApplet p, float x, float y, float w, float h, String label) {
+            this.parent = p;
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
+            this.label = label;
+        }
+        
+        void display() {
+            // Button background (purple)
+            fill(150, 100, 200);
+            stroke(120, 70, 170);
+            strokeWeight(2);
+            rect(x, y, w, h, 3);
+            
+            // Button text
+            fill(255);
+            textSize(12);
+            textAlign(CENTER, CENTER);
+            text(label, x + w/2, y + h/2);
+            textAlign(LEFT);
+        }
+        
+        boolean isClicked(float mx, float my) {
+            return mx >= x && mx <= x + w && my >= y && my <= y + h;
         }
     }
 }
