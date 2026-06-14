@@ -14,9 +14,9 @@ public class Character {
     
     public int x, y;
     String name;
-    private PApplet app;
+    protected PApplet app;
     private PImage image;
-    private int width, height;
+    protected int width, height;
     
     public Character (PApplet p, int x, int y, String name, String imagePath){
         this.app = p;
@@ -45,27 +45,12 @@ public class Character {
     public void changePerspective (String imagePath){
         this.image = app.loadImage(imagePath);
     }
-    
-    public boolean isClicked(int mouseX, int mouseY) {
-        /*calculates distance from mouse click at mouseX and mouseY to center 
-        * of image since (x,y) of image is postioned at the top left corner  
-        * we use x+(image.pixelWidth/2), y+(image.pixelHeight/2)) to get center*/
-        int centerX = x+(image.pixelWidth/2);
-        int centerY = y+(image.pixelHeight/2);        
-        float d = PApplet.dist(mouseX, mouseY, centerX ,centerY );
 
-        //gives us the dimensions of the image 32px by 32px
-        System.out.println("image height"+image.pixelHeight);
-        System.out.println("image width"+image.pixelWidth);
-
-        // returns true if  mouse clicked is within 16px from the center of image
-        // we use 16px because the image is 32px by 32px
-        return d < 16; 
-    }
-
-    public void displayInfo(PApplet p){
-        app.fill(0,0,0);
-        app.text("Name: " + name, x, y+45);
+    public void displayInfo(){
+        app.fill(255); // White text
+        app.textSize(12);
+        app.textAlign(PApplet.CENTER);
+        app.text(name, this.x + this.width / 2, this.y - 45);
     }
     
     public boolean isCollidingWith(Character other) {
@@ -78,5 +63,36 @@ public class Character {
         return isLeftOfOtherRight && isRightOfOtherLeft 
           && isAboveOtherBottom && isBelowOtherTop;
     }
+    
+    public boolean isCollidingWith(Item other) {
+        // Check if the bounding boxes of the two items intersect
+        boolean isLeftOfOtherRight = x < other.rx + other.width;
+        boolean isRightOfOtherLeft = x + width > other.rx;
+        boolean isAboveOtherBottom = y < other.ry + other.height;
+        boolean isBelowOtherTop = y + height > other.ry;
+
+        return isLeftOfOtherRight && isRightOfOtherLeft
+        && isAboveOtherBottom && isBelowOtherTop;
+    }
+
+    void addItem() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    void removeItem() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+    
+    public boolean isHovered(int mouseX, int mouseY) {
+        return mouseX >= x
+                && mouseX <= x + width
+                && mouseY >= y
+                && mouseY <= y + height;
+    }
+
+    void setItemCount(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+    
 
 }
