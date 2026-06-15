@@ -9,9 +9,12 @@ package the.magic.bed; // add this class to the package
  * @author 343079463
  */
 //-----------------------------------IMPORTS---------------------------------
+import java.io.File; // import file
+import java.io.FileNotFoundException; // import io exception
 import java.io.FileWriter; // import fileWriter
 import java.io.IOException; // import IOException
 import java.io.PrintWriter; // import PrintWriter
+import java.util.Scanner; // import scanner
 import processing.core.PApplet; // import PApplet
 import processing.core.PImage; // import PImage
 import processing.sound.*; // import sound for bg music
@@ -1051,20 +1054,24 @@ public class MySketch extends PApplet { // start MySketch class which extends (i
     /**
      * loads leaderboard data from text file and rebuilds in-game leaderboard array
      */
-    private void loadLeaderboard() { // start method with no parameters
-        String[] lines = loadStrings("leaderboard.txt"); // read all lines from leaderboard file
-        if (lines == null) { // if file does not exist or is empty
-            return; // exit loading function safely
-        } // end if
+    private void loadLeaderboard() { // method to load leaderboard data from file
         leaderboardCount = 0; // reset leaderboard counter before loading new data
-        for (int i = 0; i < lines.length; i++) { // loop through each saved score entry
-            String[] parts = split(lines[i], ','); // split each line into name and time
-            if (parts.length == 2) { // ensure valid format (name,time)
-                leaderboard[leaderboardCount][0] = parts[0]; // store player name
-                leaderboard[leaderboardCount][1] = parts[1]; // store completion time
-                leaderboardCount++; // move to next leaderboard slot
-            } // end if
-        } // end for loop
+        try { // attempt to read file safely (handles missing file errors)
+            File file = new File("leaderboard.txt"); // create file reference to leaderboard.txt
+            Scanner scanner = new Scanner(file); // create scanner to read file line by line
+            while (scanner.hasNextLine()) { // loop until there are no more lines in file
+                String line = scanner.nextLine(); // read the next full line from file
+                String[] parts = line.split(","); // split line into name and time using comma
+                if (parts.length == 2) { // check that line has both name and time
+                    leaderboard[leaderboardCount][0] = parts[0]; // store player name in column 0
+                    leaderboard[leaderboardCount][1] = parts[1]; // store player time in column 1
+                    leaderboardCount++; // move to next empty slot in leaderboard array
+                } // end if statement
+            } // end while loop
+            scanner.close(); // close scanner to free system resources
+        } catch (FileNotFoundException e) { // runs if file does not exist
+            System.out.println("Leaderboard file not found."); // error message for debugging
+        } // end catch block
     } // end method
 
     /**
